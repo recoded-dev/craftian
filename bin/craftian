@@ -1,0 +1,11 @@
+#!/usr/bin/env php
+<?php
+
+require_once dirname(__DIR__) . '/vendor/autoload.php';
+
+/** @var Recoded\Craftian\Craftian $application */
+$application = require dirname(__DIR__) . '/application.php';
+
+$application->boot();
+
+$application->run();
