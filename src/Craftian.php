@@ -3,6 +3,7 @@
 namespace Recoded\Craftian;
 
 use Recoded\Craftian\Console\Commands\InitCommand;
+use Recoded\Craftian\Console\ProgressBarFormat;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -15,12 +16,12 @@ class Craftian extends Application
         static::bootCwd();
 
         ProgressBar::setFormatDefinition(
-            'downloading',
+            ProgressBarFormat::DOWNLOADING->value,
             'Downloading [%downloadable%] %current%/%max% [%bar%] %percent:3s%%',
         );
 
         ProgressBar::setFormatDefinition(
-            'downloading_version',
+            ProgressBarFormat::DOWNLOADING_VERSION->value,
             'Downloading [%downloadable% (%version%)] %current%/%max% [%bar%] %percent:3s%%',
         );
 
