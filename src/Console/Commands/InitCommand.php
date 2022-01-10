@@ -2,6 +2,7 @@
 
 namespace Recoded\Craftian\Console\Commands;
 
+use Recoded\Craftian\Configuration\ConfigurationType;
 use Recoded\Craftian\Craftian;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -20,10 +21,10 @@ class InitCommand extends Command
     }
 
     /**
-     * @param array<array-key, mixed> $data
+     * @param \JsonSerializable $data
      * @throws \Exception
      */
-    protected function initializeJson(array $data): void
+    protected function initializeJson(\JsonSerializable $data): void
     {
         $file = fopen(Craftian::getCwd() . '/craftian.json', 'a');
         $data = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
@@ -40,9 +41,7 @@ class InitCommand extends Command
     {
         $this->assertIsNotInitialized();
 
-        $this->initializeJson([
-            'require' => [],
-        ]);
+        $this->initializeJson(ConfigurationType::Server->initialize([]));
 
         return static::SUCCESS;
     }

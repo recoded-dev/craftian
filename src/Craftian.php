@@ -4,6 +4,7 @@ namespace Recoded\Craftian;
 
 use Recoded\Craftian\Console\Commands\InitCommand;
 use Recoded\Craftian\Console\ProgressBarFormat;
+use Recoded\Craftian\Repositories\PaperRepository;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -33,10 +34,17 @@ class Craftian extends Application
         $cwd = getcwd();
 
         if ($cwd === false) {
-            throw new \Exception('Couldn\'t determine current directory, this is needed for Craftian');
+            throw new \Exception('Couldn\'t determine current directory, this is however needed for Craftian');
         }
 
         static::$cwd = $cwd;
+    }
+
+    public static function defaultRepositories(): array
+    {
+        return [
+            new PaperRepository(),
+        ];
     }
 
     public static function getCwd(): string
