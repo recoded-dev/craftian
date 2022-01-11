@@ -1,4 +1,6 @@
 parameters:
+    ignoreErrors:
+        - '#Class Recoded\\Craftian\\Http\\Client extends \@final class GuzzleHttp\\Client#'
     level: max
     paths:
         - bin

@@ -6,6 +6,9 @@ use Psr\Http\Message\UriInterface;
 
 class Client extends \GuzzleHttp\Client
 {
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(array $config = [])
     {
         parent::__construct([
@@ -24,17 +27,23 @@ class Client extends \GuzzleHttp\Client
      *
      * @param string $method HTTP method.
      * @param \Psr\Http\Message\UriInterface|string $uri URI object or string.
-     * @param array $options Request options to apply. See \GuzzleHttp\RequestOptions.
-     * @return object|array
+     * @param array<string, mixed> $options Request options to apply. See \GuzzleHttp\RequestOptions.
+     * @return object|array<mixed>
      *
      * @throws \GuzzleHttp\Exception\GuzzleException
      * @throws \JsonException
      */
     public function json(string $method, UriInterface|string $uri = '', array $options = []): object|array
     {
-        return json_decode(
+        $decoded = json_decode(
             json: $this->request(...func_get_args())->getBody(),
             flags: JSON_THROW_ON_ERROR,
         );
+
+        if (!is_array($decoded) && !is_object($decoded)) {
+            return [];
+        }
+
+        return $decoded;
     }
 }

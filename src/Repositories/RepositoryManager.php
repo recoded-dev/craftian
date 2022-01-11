@@ -8,10 +8,19 @@ use Recoded\Craftian\Craftian;
 
 class RepositoryManager
 {
+    /**
+     * @var array<\Recoded\Craftian\Contracts\Repository>
+     */
     protected array $repositories = [];
 
-    final private function __construct() { }
+    final private function __construct()
+    {
+        //
+    }
 
+    /**
+     * @return array<string>
+     */
     public function available(): array
     {
         return array_unique(array_reduce($this->repositories, function (array $carry, Repository $repository) {

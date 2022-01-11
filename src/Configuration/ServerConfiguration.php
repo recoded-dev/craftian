@@ -5,11 +5,15 @@ namespace Recoded\Craftian\Configuration;
 class ServerConfiguration extends Configuration
 {
     protected bool $defaultRepositories;
+    /**
+     * @var array<string, string>
+     */
     protected array $requirements;
 
     protected function createLock(): LockedConfiguration
     {
-        return new LockedConfiguration($this->requirements);
+//        return new LockedConfiguration($this->requirements);
+        return new LockedConfiguration([]);
     }
 
     protected function defaultConfig(): array
@@ -35,6 +39,9 @@ class ServerConfiguration extends Configuration
         return $this->lock ??= $this->createLock();
     }
 
+    /**
+     * @return array<array<array-key, mixed>>
+     */
     public function repositories(): array
     {
         return [];

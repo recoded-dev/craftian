@@ -55,11 +55,15 @@ class PluginConfiguration extends Configuration implements Installable, Software
         return $this->version;
     }
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function initialize(array $config): void
     {
         $this->checksum = $config['distribution']['checksum'] ?? null;
         $this->checksumType = $config['distribution']['checksum-type'] ?? ChecksumType::None->value;
-        $this->softwareConstraints = $config['minecraft-version']; // TODO replace this with requirements -> minecraft/server
+        // TODO replace this with requirements -> minecraft/server
+        $this->softwareConstraints = $config['minecraft-version'];
         $this->name = $config['name'];
         $this->url = $config['distribution']['url'];
         $this->version = $config['version'];

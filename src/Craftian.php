@@ -5,6 +5,7 @@ namespace Recoded\Craftian;
 use Recoded\Craftian\Console\Commands\InitCommand;
 use Recoded\Craftian\Console\ProgressBarFormat;
 use Recoded\Craftian\Repositories\PaperRepository;
+use Recoded\Craftian\Repositories\WaterfallRepository;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -40,10 +41,14 @@ class Craftian extends Application
         static::$cwd = $cwd;
     }
 
+    /**
+     * @return array<\Recoded\Craftian\Contracts\Repository>
+     */
     public static function defaultRepositories(): array
     {
         return [
             new PaperRepository(),
+            new WaterfallRepository(),
         ];
     }
 

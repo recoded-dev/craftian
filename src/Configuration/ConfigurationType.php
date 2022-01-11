@@ -8,6 +8,10 @@ enum ConfigurationType: string
     case Server = 'server';
     case Software = 'software';
 
+    /**
+     * @param array<string, mixed> $config
+     * @return \Recoded\Craftian\Configuration\Configuration
+     */
     public function initialize(array $config): Configuration
     {
         return new (match ($this) {

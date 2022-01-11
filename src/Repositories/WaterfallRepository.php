@@ -2,15 +2,15 @@
 
 namespace Recoded\Craftian\Repositories;
 
-class PaperRepository extends PaperMcRepository
+class WaterfallRepository extends PaperMcRepository
 {
     public static function getName(): string
     {
-        return 'papermc/paper';
+        return 'papermc/waterfall';
     }
 
     protected function project(): string
     {
-        return 'paper';
+        return 'waterfall';
     }
 }

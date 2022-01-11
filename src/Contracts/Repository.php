@@ -16,14 +16,14 @@ interface Repository
      * Get all versions of ...
      *
      * @param string $name
-     * @return array<string>
+     * @return array<\Recoded\Craftian\Configuration\Configuration>
      */
     public function get(string $name): array;
 
     /**
      * Array of all configurations this repository provides grouped by type.
      *
-     * @return non-empty-array<string>
+     * @return non-empty-array<string, non-empty-array<string>>
      */
     public function provides(): array;
 }
