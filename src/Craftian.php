@@ -3,6 +3,7 @@
 namespace Recoded\Craftian;
 
 use Recoded\Craftian\Console\Commands\InitCommand;
+use Recoded\Craftian\Console\Commands\InstallCommand;
 use Recoded\Craftian\Console\ProgressBarFormat;
 use Recoded\Craftian\Repositories\Software\BukkitRepository;
 use Recoded\Craftian\Repositories\Software\PaperRepository;
@@ -25,15 +26,16 @@ class Craftian extends Application
 
         ProgressBar::setFormatDefinition(
             ProgressBarFormat::DOWNLOADING->value,
-            'Downloading [%downloadable%] %current%/%max% [%bar%] %percent:3s%%',
+            'Downloading: %downloadable% [%bar%] %percent:3s%% %current%/%max%',
         );
 
         ProgressBar::setFormatDefinition(
             ProgressBarFormat::DOWNLOADING_VERSION->value,
-            'Downloading [%downloadable% (%version%)] %current%/%max% [%bar%] %percent:3s%%',
+            'Downloading: %downloadable% (%version%) [%bar%] %percent:3s%% %current%/%max%',
         );
 
         $this->add(new InitCommand());
+        $this->add(new InstallCommand());
     }
 
     public static function bootCwd(): void

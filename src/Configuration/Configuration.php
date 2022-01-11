@@ -3,6 +3,7 @@
 namespace Recoded\Craftian\Configuration;
 
 // TODO come up with better umbrella name for server, software and plugin (and potentially more in the future)
+// Maybe: Blueprint, Composition, Project
 abstract class Configuration implements \JsonSerializable
 {
     /**
