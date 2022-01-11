@@ -5,12 +5,13 @@ namespace Recoded\Craftian;
 use Recoded\Craftian\Console\Commands\InitCommand;
 use Recoded\Craftian\Console\ProgressBarFormat;
 use Recoded\Craftian\Repositories\Software\BukkitRepository;
-use Recoded\Craftian\Repositories\Software\Proxies\BungeecordRepository;
 use Recoded\Craftian\Repositories\Software\PaperRepository;
+use Recoded\Craftian\Repositories\Software\Proxies\BungeecordRepository;
+use Recoded\Craftian\Repositories\Software\Proxies\WaterfallRepository;
 use Recoded\Craftian\Repositories\Software\SnapshotRepository;
 use Recoded\Craftian\Repositories\Software\SpigotRepository;
 use Recoded\Craftian\Repositories\Software\VanillaRepository;
-use Recoded\Craftian\Repositories\Software\Proxies\WaterfallRepository;
+use Recoded\Craftian\Repositories\SpigetRepository;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -59,6 +60,8 @@ class Craftian extends Application
             new BungeecordRepository(),
             new WaterfallRepository(),
             new SnapshotRepository(),
+
+            new SpigetRepository(),
         ];
     }
 

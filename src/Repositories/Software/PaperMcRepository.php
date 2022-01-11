@@ -8,7 +8,6 @@ use Psr\Http\Message\ResponseInterface;
 use Recoded\Craftian\Configuration\ChecksumType;
 use Recoded\Craftian\Configuration\ConfigurationType;
 use Recoded\Craftian\Http\Client;
-use Recoded\Craftian\Repositories\Software\Proxies\WaterfallRepository;
 use Recoded\Craftian\Repositories\SoftwareRepository;
 
 abstract class PaperMcRepository extends SoftwareRepository
