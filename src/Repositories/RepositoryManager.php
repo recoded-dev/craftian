@@ -23,9 +23,18 @@ class RepositoryManager
      */
     public function available(): array
     {
-        return array_unique(array_reduce($this->repositories, function (array $carry, Repository $repository) {
+        return array_reduce($this->repositories, function (array $carry, Repository $repository) {
             return array_merge_recursive($carry, $repository->provides());
-        }, []));
+        }, []);
+    }
+
+    public static function default(): static
+    {
+        $manager = new static();
+
+        $manager->repositories = Craftian::defaultRepositories();
+
+        return $manager;
     }
 
     public static function fromServer(ServerConfiguration $configuration): static
@@ -41,5 +50,15 @@ class RepositoryManager
         }
 
         return $manager;
+    }
+
+    /**
+     * @return array<\Recoded\Craftian\Configuration\Configuration>
+     */
+    public function get(string $name): array
+    {
+        return array_reduce($this->repositories, function (array $carry, Repository $repository) use ($name) {
+            return array_merge($carry, $repository->get($name));
+        }, []);
     }
 }
