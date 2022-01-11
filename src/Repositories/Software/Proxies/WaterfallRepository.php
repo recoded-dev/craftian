@@ -1,6 +1,8 @@
 <?php
 
-namespace Recoded\Craftian\Repositories;
+namespace Recoded\Craftian\Repositories\Software\Proxies;
+
+use Recoded\Craftian\Repositories\Software\PaperMcRepository;
 
 class WaterfallRepository extends PaperMcRepository
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace Recoded\Craftian\Repositories;
+namespace Recoded\Craftian\Repositories\Software;
 
 class VanillaRepository extends ServerJarsRepository
 {
