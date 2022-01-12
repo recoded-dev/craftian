@@ -46,7 +46,15 @@ class RepositoryManager
         }
 
         foreach ($configuration->repositories() as $repository) {
-            // TODO initialize and add.
+            if (!is_array($repository)) {
+                throw new \InvalidArgumentException('Repositories should be expressed in array-form');
+            }
+
+            if (!isset($repository['type']) || !is_string($repository['type']) || CustomRepositoryType::tryFrom($repository['type']) === null) {
+                throw new \InvalidArgumentException('Unknown repository type');
+            }
+
+            $manager->repositories[] = CustomRepositoryType::from($repository['type'])->initialize($repository);
         }
 
         return $manager;

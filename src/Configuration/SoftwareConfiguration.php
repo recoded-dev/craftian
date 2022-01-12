@@ -27,6 +27,11 @@ class SoftwareConfiguration extends Configuration implements Installable
         return $this->name;
     }
 
+    public function getType(): ConfigurationType
+    {
+        return ConfigurationType::Software;
+    }
+
     public function getURL(): string
     {
         return $this->url;

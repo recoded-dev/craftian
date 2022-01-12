@@ -10,7 +10,6 @@ class PluginConfiguration extends Configuration implements Installable, Software
     protected ?string $checksum;
     protected string $checksumType;
     protected string $name;
-    protected string $softwareConstraints;
     protected string $url;
     protected string $version;
 
@@ -31,7 +30,6 @@ class PluginConfiguration extends Configuration implements Installable, Software
                 'checksum' => null,
                 'checksum-type' => ChecksumType::None->value,
             ],
-            'minecraft-version' => '*',
         ];
     }
 
@@ -42,7 +40,12 @@ class PluginConfiguration extends Configuration implements Installable, Software
 
     public function getSoftwareConstraint(): string
     {
-        return $this->softwareConstraints;
+        return '*'; // TODO refactor
+    }
+
+    public function getType(): ConfigurationType
+    {
+        return ConfigurationType::Plugin;
     }
 
     public function getURL(): string
@@ -62,8 +65,6 @@ class PluginConfiguration extends Configuration implements Installable, Software
     {
         $this->checksum = $config['distribution']['checksum'] ?? null;
         $this->checksumType = $config['distribution']['checksum-type'] ?? ChecksumType::None->value;
-        // TODO replace this with requirements -> minecraft/server
-        $this->softwareConstraints = $config['minecraft-version'];
         $this->name = $config['name'];
         $this->url = $config['distribution']['url'];
         $this->version = $config['version'];
@@ -77,7 +78,6 @@ class PluginConfiguration extends Configuration implements Installable, Software
                 'checksum-type' => $this->checksumType ?? 'none',
                 'url' => $this->url,
             ],
-            'minecraft-version' => $this->softwareConstraints,
             'name' => $this->name,
             'version' => $this->version,
         ];

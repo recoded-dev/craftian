@@ -2,7 +2,7 @@
 
 namespace Recoded\Craftian\Configuration;
 
-class LockedConfiguration
+class LockedConfiguration implements \JsonSerializable
 {
     /**
      * @param array<\Recoded\Craftian\Configuration\Configuration> $requirements
@@ -11,5 +11,15 @@ class LockedConfiguration
         protected array $requirements = [],
     ) {
         //
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
+    public function toArray(): array
+    {
+        return $this->requirements;
     }
 }

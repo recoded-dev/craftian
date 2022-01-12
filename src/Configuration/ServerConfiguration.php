@@ -2,9 +2,17 @@
 
 namespace Recoded\Craftian\Configuration;
 
-class ServerConfiguration extends Configuration
+use Recoded\Craftian\Contracts\Requirements;
+
+class ServerConfiguration extends Configuration implements Requirements
 {
     protected bool $defaultRepositories;
+
+    /**
+     * @var array<array-key, array<string, mixed>>
+     */
+    protected array $repositories;
+
     /**
      * @var array<string, string>
      */
@@ -31,7 +39,8 @@ class ServerConfiguration extends Configuration
     public function initialize(array $config): void
     {
         $this->defaultRepositories = $config['enable-default-repositories'];
-        $this->requirements = $config['requirements'] ?? [];
+        $this->repositories = $config['repositories'] ?? [];
+        $this->requirements = $config['require'] ?? [];
     }
 
     public function lock(): LockedConfiguration
@@ -40,12 +49,16 @@ class ServerConfiguration extends Configuration
     }
 
     /**
-     * @return array<array<array-key, mixed>>
+     * @return array<array-key, array<string, mixed>>
      */
     public function repositories(): array
     {
-        return [];
-//        return $this->repositories;
+        return $this->repositories;
+    }
+
+    public function requirements(): array
+    {
+        return $this->requirements;
     }
 
     public function toArray(): array

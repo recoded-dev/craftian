@@ -3,6 +3,7 @@
 namespace Recoded\Craftian\Contracts;
 
 use Recoded\Craftian\Configuration\ChecksumType;
+use Recoded\Craftian\Configuration\ConfigurationType;
 
 interface Installable extends Downloadable
 {
@@ -26,6 +27,13 @@ interface Installable extends Downloadable
      * @return string
      */
     public function getName(): string;
+
+    /**
+     * Type of the installable.
+     *
+     * @return \Recoded\Craftian\Configuration\ConfigurationType
+     */
+    public function getType(): ConfigurationType;
 
     /**
      * Version of the installable.
