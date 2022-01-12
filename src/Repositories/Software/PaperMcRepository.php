@@ -15,7 +15,7 @@ abstract class PaperMcRepository extends SoftwareRepository
     /**
      * @var array<array<string, mixed>>
      */
-    protected static array $configurations;
+    protected array $configurations;
 
     /**
      * @return array<array<string, mixed>>
@@ -24,8 +24,8 @@ abstract class PaperMcRepository extends SoftwareRepository
      */
     protected function fetchConfigurations(): array
     {
-        if (isset(static::$configurations)) {
-            return static::$configurations;
+        if (isset($this->configurations)) {
+            return $this->configurations;
         }
 
         $client = new Client();
@@ -94,7 +94,7 @@ abstract class PaperMcRepository extends SoftwareRepository
         $promise = $pool->promise();
         $promise->wait();
 
-        return static::$configurations = $versions;
+        return $this->configurations = $versions;
     }
 
     public function get(string $name): array

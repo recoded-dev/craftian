@@ -26,12 +26,7 @@ class Craftian extends Application
 
         ProgressBar::setFormatDefinition(
             ProgressBarFormat::DOWNLOADING->value,
-            'Downloading: %downloadable% [%bar%] %percent:3s%% %current%/%max%',
-        );
-
-        ProgressBar::setFormatDefinition(
-            ProgressBarFormat::DOWNLOADING_VERSION->value,
-            'Downloading: %downloadable% (%version%) [%bar%] %percent:3s%% %current%/%max%',
+            'Downloading: %downloadable:-40s% [%bar%] %percent:3s%% %current%MB / %max%MB',
         );
 
         $this->add(new InitCommand());

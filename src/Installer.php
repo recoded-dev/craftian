@@ -12,16 +12,21 @@ class Installer
 {
     public function install(
         Configuration&Installable $installable,
-        ?callable $progress,
+        ?Client $client = null,
+        ?callable $progress = null,
     ): PromiseInterface {
-        $client = new Client();
+        $client ??= new Client();
 
 //        $directory = Craftian::getCwd() . '/plugins';
         $directory = Craftian::getCwd();
         !file_exists($directory) && mkdir($directory, recursive: true);
 
         return $client->getAsync($installable->getURL(), [
-            RequestOptions::SINK => $directory . '/server.jar', // TODO where to generate this?
+            RequestOptions::SINK => sprintf(
+                '%s/%s.jar',
+                $directory,
+                str_replace(['/', '\\'], '-', $installable->getName()),
+            ), // TODO where to generate this?
             RequestOptions::PROGRESS => $progress,
         ]);
     }

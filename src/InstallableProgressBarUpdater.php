@@ -14,9 +14,11 @@ class InstallableProgressBarUpdater
         protected Installable $installable,
         protected ProgressBar $progressBar,
     ) {
-        $progressBar->setFormat(ProgressBarFormat::DOWNLOADING_VERSION->value);
-        $progressBar->setMessage($this->installable->getName(), 'downloadable');
-        $progressBar->setMessage($this->installable->getVersion(), 'version');
+        $progressBar->setFormat(ProgressBarFormat::DOWNLOADING->value);
+        $progressBar->setMessage(
+            sprintf('%s (%s)', $this->installable->getName(), $this->installable->getVersion()),
+            'downloadable',
+        );
     }
 
     public function __invoke(float $downloadSize, float $downloaded): void
@@ -25,8 +27,8 @@ class InstallableProgressBarUpdater
             return;
         }
 
-        $this->progressBar->setMaxSteps(round($downloadSize));
-        $this->progressBar->setProgress(round($downloaded));
+        $this->progressBar->setMaxSteps((int) round($downloadSize / 1024 / 1024));
+        $this->progressBar->setProgress((int) round($downloaded / 1024 / 1024));
 
         if ($downloadSize === $downloaded) {
             $this->finished = true;
