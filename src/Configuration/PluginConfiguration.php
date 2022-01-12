@@ -3,13 +3,15 @@
 namespace Recoded\Craftian\Configuration;
 
 use Recoded\Craftian\Contracts\Installable;
+use Recoded\Craftian\Contracts\Requirements;
 use Recoded\Craftian\Contracts\SoftwareConstraints;
 
-class PluginConfiguration extends Configuration implements Installable, SoftwareConstraints
+class PluginConfiguration extends Configuration implements Installable, Requirements, SoftwareConstraints
 {
     protected ?string $checksum;
     protected string $checksumType;
     protected string $name;
+    protected array $requirements;
     protected string $url;
     protected string $version;
 
@@ -66,8 +68,14 @@ class PluginConfiguration extends Configuration implements Installable, Software
         $this->checksum = $config['distribution']['checksum'] ?? null;
         $this->checksumType = $config['distribution']['checksum-type'] ?? ChecksumType::None->value;
         $this->name = $config['name'];
+        $this->requirements = $config['require'] ?? [];
         $this->url = $config['distribution']['url'];
         $this->version = $config['version'];
+    }
+
+    public function requirements(): array
+    {
+        return $this->requirements;
     }
 
     public function toArray(): array
@@ -80,6 +88,7 @@ class PluginConfiguration extends Configuration implements Installable, Software
             ],
             'name' => $this->name,
             'version' => $this->version,
+            'requirements' => $this->requirements,
         ];
     }
 }
