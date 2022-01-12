@@ -43,6 +43,30 @@ class InitCommand extends Command
 
         $this->initializeJson(ConfigurationType::Server->initialize([]));
 
+        $this->updateOrCreateGitIgnore();
+
         return static::SUCCESS;
+    }
+
+    protected function updateOrCreateGitIgnore(): void
+    {
+        $path = Craftian::getCwd() . '/.gitignore';
+
+        if (file_exists($path)) {
+            if (str_contains(file_get_contents($path), 'server.jar')) {
+                return;
+            }
+
+            file_put_contents($path, "plugins/*.jar\nserver.jar\n", FILE_APPEND);
+        } else {
+            $resource = fopen($path, 'a+');
+
+            if ($resource === false) {
+                throw new \Exception('Cannot create .gitignore file');
+            }
+
+            fwrite($resource, "plugins/*.jar\nserver.jar\n");
+            fclose($resource);
+        }
     }
 }
