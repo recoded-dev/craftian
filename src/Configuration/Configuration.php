@@ -29,6 +29,10 @@ abstract class Configuration implements \JsonSerializable
         return [];
     }
 
+    /**
+     * @param array<string, mixed> $configuration
+     * @return self
+     */
     public static function fromArray(array $configuration): self
     {
         if (!isset($configuration['type']) || !is_string($configuration['type']) || ConfigurationType::tryFrom($configuration['type']) === null) {

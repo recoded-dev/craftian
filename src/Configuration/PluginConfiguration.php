@@ -75,19 +75,18 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
         $this->checksum = $config['distribution']['checksum'] ?? null;
         $this->checksumType = $config['distribution']['checksum-type'] ?? ChecksumType::None->value;
         $this->name = $config['name'];
+        $this->replacements = $config['replaces'] ?? [];
         $this->requirements = $config['require'] ?? [];
         $this->url = $config['distribution']['url'];
         $this->version = $config['version'];
-
-        $this->replacements = array_map(
-            fn (string $version) => str_replace('self.version', $this->version, $version),
-            $config['replaces'] ?? [],
-        );
     }
 
     public function replaces(): array
     {
-        return $this->replacements;
+        return array_map(
+            fn (string $version) => str_replace('self.version', $this->version, $version),
+            $this->replacements,
+        );
     }
 
     public function requirements(): array

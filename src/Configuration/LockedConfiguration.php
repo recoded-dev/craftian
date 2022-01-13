@@ -13,11 +13,17 @@ class LockedConfiguration implements \JsonSerializable
         //
     }
 
+    /**
+     * @return array<\Recoded\Craftian\Configuration\Configuration>
+     */
     public function jsonSerialize(): array
     {
         return $this->toArray();
     }
 
+    /**
+     * @return array<\Recoded\Craftian\Configuration\Configuration>
+     */
     public function toArray(): array
     {
         return $this->requirements;

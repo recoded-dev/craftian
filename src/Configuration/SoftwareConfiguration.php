@@ -54,15 +54,15 @@ class SoftwareConfiguration extends Configuration implements Replacable
         $this->url = $config['distribution']['url'];
         $this->version = $config['version'];
 
-        $this->replacements = array_map(
-            fn (string $version) => str_replace('self.version', $this->version, $version),
-            $config['replaces'] ?? [],
-        );
+        $this->replacements = $config['replaces'] ?? [];
     }
 
     public function replaces(): array
     {
-        return $this->replacements;
+        return array_map(
+            fn (string $version) => str_replace('self.version', $this->version, $version),
+            $this->replacements,
+        );
     }
 
     public function toArray(): array

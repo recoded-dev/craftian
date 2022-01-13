@@ -15,10 +15,15 @@ class ConfigRepository implements Repository
 
     /**
      * @param array<string, mixed> $config
+     * @throws \Exception
      */
     public function __construct(array $config)
     {
-        $this->hydrateConfigurations($config['configurations']);
+        if (!is_array($configurations = $config['configurations'] ?? [])) {
+            throw new \Exception('Invalid configurations section for config repository');
+        }
+
+        $this->hydrateConfigurations($configurations);
     }
 
     /**

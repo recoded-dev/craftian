@@ -23,7 +23,7 @@ interface Repository
     /**
      * Array of all configurations this repository provides grouped by type.
      *
-     * @return array<string, non-empty-array<string>>
+     * @return array<string, array<string>>
      */
     public function provides(): array;
 }
