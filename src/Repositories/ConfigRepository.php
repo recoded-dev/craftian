@@ -13,6 +13,9 @@ class ConfigRepository implements Repository
      */
     protected array $configurations;
 
+    /**
+     * @param array<string, mixed> $config
+     */
     public function __construct(array $config)
     {
         $this->hydrateConfigurations($config['configurations']);
@@ -23,9 +26,12 @@ class ConfigRepository implements Repository
      */
     public function autocomplete(string $query): array
     {
-        return array_filter(
-            $this->configurations,
-            fn (Installable $installable) => str_starts_with($installable->getName(), $query),
+        return array_map(
+            fn (Installable $installable) => $installable->getName(),
+            array_filter(
+                $this->configurations,
+                fn (Installable $installable) => str_starts_with($installable->getName(), $query),
+            ),
         );
     }
 
@@ -37,6 +43,9 @@ class ConfigRepository implements Repository
         return array_filter($this->configurations, fn (Installable $installable) => $installable->getName() === $name);
     }
 
+    /**
+     * @param array<array-key, array<string, mixed>> $configurations
+     */
     protected function hydrateConfigurations(array $configurations): void
     {
         $this->configurations = array_filter(
@@ -57,9 +66,9 @@ class ConfigRepository implements Repository
         }
 
         return array_map(function (array $configurations) {
-            return array_unique(
+            return array_values(array_unique(
                 array_map(fn (Installable $installable) => $installable->getName(), $configurations),
-            );
+            ));
         }, $provides);
     }
 }

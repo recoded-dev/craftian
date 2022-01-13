@@ -8,11 +8,15 @@ use Recoded\Craftian\Configuration\Configuration;
 use Recoded\Craftian\Configuration\LockedConfiguration;
 use Recoded\Craftian\Configuration\ServerConfiguration;
 use Recoded\Craftian\Contracts\Installable;
+use Recoded\Craftian\Contracts\Replacable;
 use Recoded\Craftian\Contracts\Requirements;
 use Recoded\Craftian\Repositories\RepositoryManager;
 
 class Locker
 {
+    /**
+     * @var array<string, array<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable>>
+     */
     protected array $cache;
     protected RepositoryManager $manager;
     protected VersionParser $versionParser;
@@ -24,6 +28,11 @@ class Locker
         $this->versionParser = new VersionParser();
     }
 
+    /**
+     * @param array<string, \Recoded\Craftian\Configuration\Configuration> $lock
+     * @param string $requirement
+     * @return array<string>
+     */
     protected function findConstraintsFor(array $lock, string $requirement): array
     {
         $requirements = array_filter($lock, fn (Configuration $configuration) => $configuration instanceof Requirements);
@@ -36,15 +45,28 @@ class Locker
         return array_values(array_filter($constraints));
     }
 
+    /**
+     * @param string $requirement
+     * @param array<string> $constraints
+     * @param array<string, string> $installed
+     * @return array{array<string, string>, \Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable}|null
+     */
     protected function findLock(string $requirement, array $constraints, array $installed): ?array
     {
-        $possible = array_filter($this->get($requirement), function (Configuration $configuration) use ($constraints, $installed) {
-            if (!$configuration instanceof Installable) {
-                return false;
-            }
-
+        $possible = array_filter($this->get($requirement), function (Configuration&Installable $configuration) use ($constraints, $installed) {
             if ($configuration instanceof Requirements) {
                 foreach ($configuration->requirements() as $requirement => $constraint) {
+                    $availableVersions = array_map(
+                        fn (Installable $installable) => $installable->getVersion(),
+                        $this->get($requirement),
+                    );
+
+                    $satisfiedVersions = Semver::satisfiedBy($availableVersions, $constraint);
+
+                    if (empty($satisfiedVersions)) {
+                        return false;
+                    }
+
                     if (!isset($installed[$requirement])) {
                         continue;
                     }
@@ -74,6 +96,8 @@ class Locker
             return [[], $configuration];
         }
 
+        /** @var \Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable&\Recoded\Craftian\Contracts\Requirements $configuration */
+
         return [
             array_filter(
                 $configuration->requirements(),
@@ -84,10 +108,17 @@ class Locker
         ];
     }
 
+    /**
+     * @param string $requirement
+     * @return array<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable>
+     */
     protected function get(string $requirement): array
     {
         return $this->cache[$requirement] ??= $this->sort(
-            $this->manager->get($requirement),
+            array_filter(
+                $this->manager->get($requirement),
+                fn (Configuration $configuration) => $configuration instanceof Installable,
+            ),
         );
     }
 
@@ -112,28 +143,41 @@ class Locker
                 ] = $found;
 
                 $installed[$requirement] = $found[1]->getVersion();
+
+                // TODO check if this is fraudulent 😅
+                if ($found[1] instanceof Replacable) {
+                    foreach ($found[1]->replaces() as $replaceRequirement => $replaceVersion) {
+                        $installed[$replaceRequirement] ??= $replaceVersion;
+                    }
+                }
+
                 unset($toLock[$requirement]);
 
                 $toLock = array_merge($toLock, $toInstall);
             }
         } while (!empty($toLock));
 
-        dd(array_values($lock));
-
-        return new LockedConfiguration(array_filter($baseRequirements));
+        return new LockedConfiguration(array_values($lock));
     }
 
+    /**
+     * @param array<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable> $configurations
+     * @return array<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable>
+     */
     protected function sort(array $configurations): array
     {
-        $installables = array_filter($configurations, fn (Configuration $configuration) => $configuration instanceof Installable);
-        $versions = array_map(fn (Installable $installable) => $installable->getVersion(), $installables);
+        $versions = array_map(fn (Installable $installable) => $installable->getVersion(), $configurations);
 
         $sorted = Semver::rsort($versions);
 
-        usort($installables, function (Installable $installable) use ($sorted) {
-            return array_search($installable->getVersion(), $sorted);
+        $last = count($configurations);
+
+        usort($configurations, function (Configuration&Installable $installable) use ($last, $sorted) {
+            $index = array_search($installable->getVersion(), $sorted);
+
+            return is_int($index) ? $index : $last;
         });
 
-        return $installables;
+        return $configurations;
     }
 }

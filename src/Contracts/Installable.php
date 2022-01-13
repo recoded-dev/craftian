@@ -5,7 +5,7 @@ namespace Recoded\Craftian\Contracts;
 use Recoded\Craftian\Configuration\ChecksumType;
 use Recoded\Craftian\Configuration\ConfigurationType;
 
-interface Installable extends Downloadable
+interface Installable extends Downloadable, Version
 {
     /**
      * Checksum type of the artifact.
@@ -34,11 +34,4 @@ interface Installable extends Downloadable
      * @return \Recoded\Craftian\Configuration\ConfigurationType
      */
     public function getType(): ConfigurationType;
-
-    /**
-     * Version of the installable.
-     *
-     * @return string
-     */
-    public function getVersion(): string;
 }

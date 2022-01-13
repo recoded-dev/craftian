@@ -2,13 +2,17 @@
 
 namespace Recoded\Craftian\Configuration;
 
-use Recoded\Craftian\Contracts\Installable;
+use Recoded\Craftian\Contracts\Replacable;
 
-class SoftwareConfiguration extends Configuration implements Installable
+class SoftwareConfiguration extends Configuration implements Replacable
 {
     protected ?string $checksum;
     protected string $checksumType;
     protected string $name;
+    /**
+     * @var array<string, string>
+     */
+    protected array $replacements;
     protected string $url;
     protected string $version;
 
@@ -49,6 +53,16 @@ class SoftwareConfiguration extends Configuration implements Installable
         $this->name = $config['name'];
         $this->url = $config['distribution']['url'];
         $this->version = $config['version'];
+
+        $this->replacements = array_map(
+            fn (string $version) => str_replace('self.version', $this->version, $version),
+            $config['replaces'] ?? [],
+        );
+    }
+
+    public function replaces(): array
+    {
+        return $this->replacements;
     }
 
     public function toArray(): array
@@ -60,6 +74,7 @@ class SoftwareConfiguration extends Configuration implements Installable
                 'url' => $this->url,
             ],
             'name' => $this->name,
+            'replaces' => $this->replacements,
             'version' => $this->version,
         ];
     }

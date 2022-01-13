@@ -2,15 +2,22 @@
 
 namespace Recoded\Craftian\Configuration;
 
-use Recoded\Craftian\Contracts\Installable;
+use Recoded\Craftian\Contracts\Replacable;
 use Recoded\Craftian\Contracts\Requirements;
 use Recoded\Craftian\Contracts\SoftwareConstraints;
 
-class PluginConfiguration extends Configuration implements Installable, Requirements, SoftwareConstraints
+class PluginConfiguration extends Configuration implements Replacable, Requirements, SoftwareConstraints
 {
     protected ?string $checksum;
     protected string $checksumType;
     protected string $name;
+    /**
+     * @var array<string, string>
+     */
+    protected array $replacements;
+    /**
+     * @var array<string, string>
+     */
     protected array $requirements;
     protected string $url;
     protected string $version;
@@ -71,6 +78,16 @@ class PluginConfiguration extends Configuration implements Installable, Requirem
         $this->requirements = $config['require'] ?? [];
         $this->url = $config['distribution']['url'];
         $this->version = $config['version'];
+
+        $this->replacements = array_map(
+            fn (string $version) => str_replace('self.version', $this->version, $version),
+            $config['replaces'] ?? [],
+        );
+    }
+
+    public function replaces(): array
+    {
+        return $this->replacements;
     }
 
     public function requirements(): array
@@ -87,8 +104,9 @@ class PluginConfiguration extends Configuration implements Installable, Requirem
                 'url' => $this->url,
             ],
             'name' => $this->name,
-            'version' => $this->version,
+            'replaces' => $this->replacements,
             'requirements' => $this->requirements,
+            'version' => $this->version,
         ];
     }
 }

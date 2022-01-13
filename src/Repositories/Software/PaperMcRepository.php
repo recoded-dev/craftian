@@ -34,6 +34,9 @@ abstract class PaperMcRepository extends SoftwareRepository
 
         $versions = array_map(fn (string $version) => [
             'name' => static::getName(),
+            'replaces' => [
+                'minecraft/server' => 'self.version',
+            ],
             'type' => ConfigurationType::Software->value,
             'version' => $version,
         ], $versions);

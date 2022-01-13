@@ -36,6 +36,9 @@ abstract class ServerJarsRepository extends SoftwareRepository
                 'url' => sprintf('https://serverjars.com/api/fetchJar/%s/%s', $this->type(), $version->version),
             ],
             'name' => static::getName(),
+            'replaces' => [
+                'minecraft/server' => 'self.version',
+            ],
             'type' => ConfigurationType::Software->value,
             'version' => $version->version,
         ], $versions);
