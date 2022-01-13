@@ -55,9 +55,9 @@ class SpigetRepository implements Repository
                 $page++,
             ));
 
-            static::$ids = array_merge(static::$ids, array_map(function (object $resource) {
-                return $resource->id;
-            }, $data));
+            static::$ids = array_merge(static::$ids, array_filter(array_map(function (object $resource) {
+                return isset($resource->id) ? $resource->id : null; // phpstan doesn't understand ?? coalesce
+            }, $data)));
 
             $lastResultCount = count($data);
         } while ($lastResultCount === static::PAGE_SIZE);
@@ -94,15 +94,23 @@ class SpigetRepository implements Repository
             $lastResultCount = count($data);
         } while ($lastResultCount === static::PAGE_SIZE);
 
-        return array_map([ConfigurationType::Plugin, 'initialize'], array_map(fn (object $version) => [
-            'distribution' => [
-                'url' => sprintf('https://api.spiget.org/v2/resources/%d/versions/%d/download', $id, $version->id),
-                'checksum-type' => ChecksumType::None->value,
-            ],
-            'name' => 'spiget/' . $id,
-            'type' => ConfigurationType::Plugin->value,
-            'version' => $version->name,
-        ], $versions));
+        return array_map([ConfigurationType::Plugin, 'initialize'], array_filter(
+            array_map(function (object $version) use ($id) {
+                if (!isset($version->id, $version->name)) {
+                    return null;
+                }
+
+                return [
+                    'distribution' => [
+                        'url' => sprintf('https://api.spiget.org/v2/resources/%d/versions/%d/download', $id, $version->id),
+                        'checksum-type' => ChecksumType::None->value,
+                    ],
+                    'name' => 'spiget/' . $id,
+                    'type' => ConfigurationType::Plugin->value,
+                    'version' => $version->name,
+                ];
+            }, $versions),
+        ));
     }
 
     /**
@@ -111,10 +119,10 @@ class SpigetRepository implements Repository
     public function provides(): array
     {
         return []; // TODO Improve performance
-        $ids = $this->fetchIds();
-
-        return [
-            ConfigurationType::Plugin->value => array_map(fn (int $id) => "spiget/{$id}", $ids),
-        ];
+//        $ids = $this->fetchIds();
+//
+//        return [
+//            ConfigurationType::Plugin->value => array_map(fn (int $id) => "spiget/{$id}", $ids),
+//        ];
     }
 }

@@ -6,13 +6,13 @@ use Recoded\Craftian\Contracts\Replacable;
 
 class SoftwareConfiguration extends Configuration implements Replacable
 {
-    protected ?string $checksum;
+    protected ?string $checksum = null;
     protected string $checksumType;
     protected string $name;
     /**
      * @var array<string, string>
      */
-    protected array $replacements;
+    protected array $replacements = [];
     protected string $url;
     protected string $version;
 
@@ -48,13 +48,56 @@ class SoftwareConfiguration extends Configuration implements Replacable
 
     public function initialize(array $config): void
     {
-        $this->checksum = $config['distribution']['checksum'] ?? null;
-        $this->checksumType = $config['distribution']['checksum-type'] ?? ChecksumType::None->value;
+        if (
+            isset($config['distribution'])
+            && is_array($config['distribution'])
+            && isset($config['distribution']['checksum'])
+            && is_string($config['distribution']['checksum'])
+        ) {
+            $this->checksum = $config['distribution']['checksum'];
+        }
+
+        if (
+            isset($config['distribution'])
+            && is_array($config['distribution'])
+            && isset($config['distribution']['checksum-type'])
+            && is_string($config['distribution']['checksum-type'])
+        ) {
+            $this->checksumType = $config['distribution']['checksum-type'];
+        } else {
+            $this->checksumType = ChecksumType::None->value;
+        }
+
+        if (
+            !isset($config['name'])
+            || !is_string($config['name'])
+        ) {
+            throw new \InvalidArgumentException('Configuration should have a name');
+        }
+
+        if (
+            !isset($config['version'])
+            || !is_string($config['version'])
+        ) {
+            throw new \InvalidArgumentException('Configuration should have a version');
+        }
+
+        if (
+            !isset($config['distribution'])
+            || !is_array($config['distribution'])
+            || !isset($config['distribution']['url'])
+            || !is_string($config['distribution']['url'])
+        ) {
+            throw new \InvalidArgumentException('Configuration should have a distribution URL');
+        }
+
         $this->name = $config['name'];
         $this->url = $config['distribution']['url'];
         $this->version = $config['version'];
 
-        $this->replacements = $config['replaces'] ?? [];
+        if (isset($config['replaces']) && is_array($config['replaces'])) {
+            $this->replacements = $config['replaces'];
+        }
     }
 
     public function replaces(): array

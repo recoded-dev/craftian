@@ -27,21 +27,33 @@ abstract class ServerJarsRepository extends SoftwareRepository
 
         $client = new Client();
 
-        $versions = $client->json('get', $this->url())->response;
+        $response = $client->json('get', $this->url());
 
-        $versions = array_map(fn (object $version) => [
-            'distribution' => [
-                'checksum' => $version->md5,
-                'checksum-type' => ChecksumType::Md5->value,
-                'url' => sprintf('https://serverjars.com/api/fetchJar/%s/%s', $this->type(), $version->version),
-            ],
-            'name' => static::getName(),
-            'replaces' => [
-                'minecraft/server' => 'self.version',
-            ],
-            'type' => ConfigurationType::Software->value,
-            'version' => $version->version,
-        ], $versions);
+        if (!is_object($response) || !isset($response->response)) {
+            return [];
+        }
+
+        $versions = $response->response;
+
+        $versions = array_filter(array_map(function (object $version) {
+            if (!isset($version->version, $version->md5)) {
+                return null;
+            }
+
+            return [
+                'distribution' => [
+                    'checksum' => $version->md5,
+                    'checksum-type' => ChecksumType::Md5->value,
+                    'url' => sprintf('https://serverjars.com/api/fetchJar/%s/%s', $this->type(), $version->version),
+                ],
+                'name' => static::getName(),
+                'replaces' => [
+                    'minecraft/server' => 'self.version',
+                ],
+                'type' => ConfigurationType::Software->value,
+                'version' => $version->version,
+            ];
+        }, $versions));
 
         return $this->configurations = $versions;
     }

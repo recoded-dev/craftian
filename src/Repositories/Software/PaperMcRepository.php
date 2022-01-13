@@ -30,7 +30,13 @@ abstract class PaperMcRepository extends SoftwareRepository
 
         $client = new Client();
 
-        $versions = $client->json('get', $this->url())->versions;
+        $response = $client->json('get', $this->url());
+
+        if (!is_object($response) || !isset($response->versions)) {
+            return [];
+        }
+
+        $versions = $response->versions;
 
         $versions = array_map(fn (string $version) => [
             'name' => static::getName(),
@@ -50,10 +56,17 @@ abstract class PaperMcRepository extends SoftwareRepository
         $pool = new Pool($client, $requests(), [
             'concurrency' => 10,
             'fulfilled' => function (ResponseInterface $response, int $index) use (&$versions) {
-                $versions[$index]['build'] = max(json_decode(
+                $body = json_decode(
                     $response->getBody(),
                     flags: JSON_THROW_ON_ERROR,
-                )->builds);
+                );
+
+                if (!is_object($body) || !isset($body->builds) || !is_array($body->builds)) {
+                    unset($versions[$index]);
+                    return;
+                }
+
+                $versions[$index]['build'] = max($body->builds);
             },
             'rejected' => function ($reason, $index) use (&$versions) {
                 unset($versions[$index]);
@@ -74,10 +87,27 @@ abstract class PaperMcRepository extends SoftwareRepository
         $pool = new Pool($client, $requests(), [
             'concurrency' => 10,
             'fulfilled' => function (ResponseInterface $response, int $index) use (&$versions) {
-                $download = json_decode(
+                $body = json_decode(
                     $response->getBody(),
                     flags: JSON_THROW_ON_ERROR,
-                )->downloads->application;
+                );
+
+                if (
+                    !is_object($body)
+                    || !isset($body->downloads)
+                    || !isset($body->downloads->application)
+                    || !is_object($body->downloads->application)
+                ) {
+                    unset($versions[$index]);
+                    return;
+                }
+
+                $download = $body->downloads->application;
+
+                if (!isset($download->sha256, $download->name)) {
+                    unset($versions[$index]);
+                    return;
+                }
 
                 $version = $versions[$index];
 

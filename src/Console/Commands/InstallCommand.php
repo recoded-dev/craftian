@@ -19,6 +19,8 @@ class InstallCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /** @var \Symfony\Component\Console\Output\ConsoleOutput $output */
+
         $installer = new Installer();
         $promises = [];
 
