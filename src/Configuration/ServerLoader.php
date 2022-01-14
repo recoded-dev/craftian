@@ -13,7 +13,7 @@ class ServerLoader
         $this->cwd = Craftian::getCwd();
     }
 
-    public function load(string $path = null): ServerConfiguration
+    public function load(string $path = null): ServerBlueprint
     {
         $path ??= $this->cwd;
 
@@ -29,19 +29,19 @@ class ServerLoader
             throw new \Exception('Could not read "craftian.json" file');
         }
 
-        $configuration = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
+        $blueprint = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
 
-        if (!is_array($configuration)) {
+        if (!is_array($blueprint)) {
             throw new \Exception('Configuration loaded isn\'t a server configuration');
         }
 
-        $configuration = Configuration::fromArray($configuration);
+        $blueprint = Blueprint::fromArray($blueprint);
         fclose($resource);
 
-        if (!$configuration instanceof ServerConfiguration) {
+        if (!$blueprint instanceof ServerBlueprint) {
             throw new \Exception('Configuration loaded isn\'t a server configuration');
         }
 
-        return $configuration;
+        return $blueprint;
     }
 }

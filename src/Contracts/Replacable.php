@@ -5,7 +5,7 @@ namespace Recoded\Craftian\Contracts;
 interface Replacable extends Installable
 {
     /**
-     * Array with configurations this configuration replaces.
+     * Array with blueprints this blueprint replaces.
      *
      * @return array<string, string>
      */

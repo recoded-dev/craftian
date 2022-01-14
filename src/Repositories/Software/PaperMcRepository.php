@@ -5,8 +5,8 @@ namespace Recoded\Craftian\Repositories\Software;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Message\ResponseInterface;
+use Recoded\Craftian\Configuration\BlueprintType;
 use Recoded\Craftian\Configuration\ChecksumType;
-use Recoded\Craftian\Configuration\ConfigurationType;
 use Recoded\Craftian\Http\Client;
 use Recoded\Craftian\Repositories\SoftwareRepository;
 
@@ -43,7 +43,7 @@ abstract class PaperMcRepository extends SoftwareRepository
             'replaces' => [
                 'minecraft/server' => 'self.version',
             ],
-            'type' => ConfigurationType::Software->value,
+            'type' => BlueprintType::Software->value,
             'version' => $version,
         ], $versions);
 
@@ -137,7 +137,7 @@ abstract class PaperMcRepository extends SoftwareRepository
         }
 
         return array_map(
-            fn (array $config) => ConfigurationType::Software->initialize($config),
+            fn (array $config) => BlueprintType::Software->initialize($config),
             $this->fetchConfigurations(),
         );
     }

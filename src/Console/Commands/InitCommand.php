@@ -2,7 +2,7 @@
 
 namespace Recoded\Craftian\Console\Commands;
 
-use Recoded\Craftian\Configuration\ConfigurationType;
+use Recoded\Craftian\Configuration\BlueprintType;
 use Recoded\Craftian\Craftian;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,7 +41,7 @@ class InitCommand extends Command
     {
         $this->assertIsNotInitialized();
 
-        $this->initializeJson(ConfigurationType::Server->initialize([]));
+        $this->initializeJson(BlueprintType::Server->initialize([]));
 
         $this->updateOrCreateGitIgnore();
 

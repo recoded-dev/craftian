@@ -3,10 +3,8 @@
 namespace Recoded\Craftian\Configuration;
 
 use Recoded\Craftian\Contracts\Replacable;
-use Recoded\Craftian\Contracts\Requirements;
-use Recoded\Craftian\Contracts\SoftwareConstraints;
 
-class PluginConfiguration extends Configuration implements Replacable, Requirements, SoftwareConstraints
+class SoftwareBlueprint extends Blueprint implements Replacable
 {
     protected ?string $checksum = null;
     protected string $checksumType;
@@ -15,10 +13,6 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
      * @var array<string, string>
      */
     protected array $replacements = [];
-    /**
-     * @var array<string, string>
-     */
-    protected array $requirements = [];
     protected string $url;
     protected string $version;
 
@@ -32,24 +26,9 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
         return ChecksumType::from($this->checksumType);
     }
 
-    protected function defaultConfig(): array
-    {
-        return [
-            'distribution' => [
-                'checksum' => null,
-                'checksum-type' => ChecksumType::None->value,
-            ],
-        ];
-    }
-
     public function getName(): string
     {
         return $this->name;
-    }
-
-    public function getSoftwareConstraint(): string
-    {
-        return '*'; // TODO refactor
     }
 
     public function getURL(): string
@@ -62,9 +41,6 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
         return $this->version;
     }
 
-    /**
-     * @param array<string, mixed> $config
-     */
     public function initialize(array $config): void
     {
         if (
@@ -114,10 +90,6 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
         $this->url = $config['distribution']['url'];
         $this->version = $config['version'];
 
-        if (isset($config['require']) && is_array($config['require'])) {
-            $this->requirements = $config['require'];
-        }
-
         if (isset($config['replaces']) && is_array($config['replaces'])) {
             $this->replacements = $config['replaces'];
         }
@@ -125,24 +97,12 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
 
     public function installationFilename(): string
     {
-        $safeName = preg_replace([
-            '/[\/\\\\]+/',
-            '/[^A-Za-z0-9]+/',
-        ], [
-            '-',
-            '',
-        ], $this->getName());
-
-        return sprintf(
-            '%s-%s.jar',
-            $safeName,
-            str_replace('.', '_', $this->getVersion()),
-        );
+        return 'server.jar';
     }
 
     public function installationLocation(): string
     {
-        return '/plugins';
+        return '/';
     }
 
     public function replaces(): array
@@ -151,11 +111,6 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
             fn (string $version) => str_replace('self.version', $this->version, $version),
             $this->replacements,
         );
-    }
-
-    public function requirements(): array
-    {
-        return $this->requirements;
     }
 
     public function toArray(): array
@@ -168,7 +123,6 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
             ],
             'name' => $this->name,
             'replaces' => $this->replacements,
-            'requirements' => $this->requirements,
             'version' => $this->version,
         ];
     }

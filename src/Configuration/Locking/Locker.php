@@ -4,9 +4,8 @@ namespace Recoded\Craftian\Configuration\Locking;
 
 use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
-use Recoded\Craftian\Configuration\Configuration;
-use Recoded\Craftian\Configuration\LockedConfiguration;
-use Recoded\Craftian\Configuration\ServerConfiguration;
+use Recoded\Craftian\Configuration\Blueprint;
+use Recoded\Craftian\Configuration\ServerBlueprint;
 use Recoded\Craftian\Contracts\Installable;
 use Recoded\Craftian\Contracts\Replacable;
 use Recoded\Craftian\Contracts\Requirements;
@@ -15,21 +14,21 @@ use Recoded\Craftian\Repositories\RepositoryManager;
 class Locker
 {
     /**
-     * @var array<string, array<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable>>
+     * @var array<string, array<\Recoded\Craftian\Configuration\Blueprint&\Recoded\Craftian\Contracts\Installable>>
      */
     protected array $cache;
     protected RepositoryManager $manager;
     protected VersionParser $versionParser;
 
     public function __construct(
-        protected ServerConfiguration $configuration,
+        protected ServerBlueprint $server,
     ) {
-        $this->manager = RepositoryManager::fromServer($this->configuration);
+        $this->manager = RepositoryManager::fromServer($this->server);
         $this->versionParser = new VersionParser();
     }
 
     /**
-     * @param array<string, \Recoded\Craftian\Configuration\Configuration> $lock
+     * @param array<string, \Recoded\Craftian\Configuration\Blueprint> $lock
      * @param string $requirement
      * @return array<string>
      */
@@ -37,13 +36,13 @@ class Locker
     {
         $requirements = array_filter(
             $lock,
-            fn (Configuration $configuration) => $configuration instanceof Requirements,
+            fn (Blueprint $blueprint) => $blueprint instanceof Requirements,
         );
-        $constraints = array_map(function (Requirements $configuration) use ($requirement) {
-            return $configuration->requirements()[$requirement] ?? null;
+        $constraints = array_map(function (Blueprint&Requirements $blueprint) use ($requirement) {
+            return $blueprint->requirements()[$requirement] ?? null;
         }, $requirements);
 
-        $constraints[] = $this->configuration->requirements()[$requirement] ?? null;
+        $constraints[] = $this->server->requirements()[$requirement] ?? null;
 
         return array_values(array_filter($constraints));
     }
@@ -52,15 +51,15 @@ class Locker
      * @param string $requirement
      * @param array<string> $constraints
      * @param array<string, string> $installed
-     * @return array{array<string, string>, \Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable}|null
+     * @return array{array<string, string>, \Recoded\Craftian\Configuration\Blueprint&\Recoded\Craftian\Contracts\Installable}|null
      */
     protected function findLock(string $requirement, array $constraints, array $installed): ?array
     {
         $possible = array_filter(
             $this->get($requirement),
-            function (Configuration&Installable $configuration) use ($constraints, $installed) {
-                if ($configuration instanceof Requirements) {
-                    foreach ($configuration->requirements() as $requirement => $constraint) {
+            function (Blueprint&Installable $blueprint) use ($constraints, $installed) {
+                if ($blueprint instanceof Requirements) {
+                    foreach ($blueprint->requirements() as $requirement => $constraint) {
                         $availableVersions = array_map(
                             fn (Installable $installable) => $installable->getVersion(),
                             $this->get($requirement),
@@ -83,7 +82,7 @@ class Locker
                 }
 
                 foreach ($constraints as $constraint) {
-                    if (!Semver::satisfies($configuration->getVersion(), $constraint)) {
+                    if (!Semver::satisfies($blueprint->getVersion(), $constraint)) {
                         return false;
                     }
                 }
@@ -96,43 +95,43 @@ class Locker
             return null;
         }
 
-        $configuration = array_values($possible)[0];
+        $blueprint = array_values($possible)[0];
 
-        if (!$configuration instanceof Requirements) {
-            return [[], $configuration];
+        if (!$blueprint instanceof Requirements) {
+            return [[], $blueprint];
         }
 
-        /** @var \Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable&\Recoded\Craftian\Contracts\Requirements $configuration */
+        /** @var \Recoded\Craftian\Configuration\Blueprint&\Recoded\Craftian\Contracts\Installable&\Recoded\Craftian\Contracts\Requirements $blueprint */
 
         return [
             array_filter(
-                $configuration->requirements(),
+                $blueprint->requirements(),
                 fn (string $requirement) => !isset($installed[$requirement]),
                 ARRAY_FILTER_USE_KEY,
             ),
-            $configuration,
+            $blueprint,
         ];
     }
 
     /**
      * @param string $requirement
-     * @return array<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable>
+     * @return array<\Recoded\Craftian\Configuration\Blueprint&\Recoded\Craftian\Contracts\Installable>
      */
     protected function get(string $requirement): array
     {
         return $this->cache[$requirement] ??= $this->sort(
             array_filter(
                 $this->manager->get($requirement),
-                fn (Configuration $configuration) => $configuration instanceof Installable,
+                fn (Blueprint $configuration) => $configuration instanceof Installable,
             ),
         );
     }
 
-    public function lock(): LockedConfiguration
+    public function lock(): Lock
     {
         $lock = [];
 
-        $toLock = $this->configuration->requirements();
+        $toLock = $this->server->requirements();
         $installed = [];
 
         do {
@@ -163,27 +162,27 @@ class Locker
             }
         } while (!empty($toLock));
 
-        return new LockedConfiguration(array_values($lock));
+        return new Lock(array_values($lock));
     }
 
     /**
-     * @param array<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable> $configurations
-     * @return array<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable>
+     * @param array<\Recoded\Craftian\Configuration\Blueprint&\Recoded\Craftian\Contracts\Installable> $blueprints
+     * @return array<\Recoded\Craftian\Configuration\Blueprint&\Recoded\Craftian\Contracts\Installable>
      */
-    protected function sort(array $configurations): array
+    protected function sort(array $blueprints): array
     {
-        $versions = array_map(fn (Installable $installable) => $installable->getVersion(), $configurations);
+        $versions = array_map(fn (Blueprint&Installable $blueprint) => $blueprint->getVersion(), $blueprints);
 
         $sorted = Semver::rsort($versions);
 
-        $last = count($configurations);
+        $last = count($blueprints);
 
-        usort($configurations, function (Configuration&Installable $installable) use ($last, $sorted) {
-            $index = array_search($installable->getVersion(), $sorted);
+        usort($blueprints, function (Blueprint&Installable $blueprint) use ($last, $sorted) {
+            $index = array_search($blueprint->getVersion(), $sorted);
 
             return is_int($index) ? $index : $last;
         });
 
-        return $configurations;
+        return $blueprints;
     }
 }

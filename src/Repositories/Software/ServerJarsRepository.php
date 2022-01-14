@@ -2,8 +2,8 @@
 
 namespace Recoded\Craftian\Repositories\Software;
 
+use Recoded\Craftian\Configuration\BlueprintType;
 use Recoded\Craftian\Configuration\ChecksumType;
-use Recoded\Craftian\Configuration\ConfigurationType;
 use Recoded\Craftian\Http\Client;
 use Recoded\Craftian\Repositories\SoftwareRepository;
 
@@ -50,7 +50,7 @@ abstract class ServerJarsRepository extends SoftwareRepository
                 'replaces' => [
                     'minecraft/server' => 'self.version',
                 ],
-                'type' => ConfigurationType::Software->value,
+                'type' => BlueprintType::Software->value,
                 'version' => $version->version,
             ];
         }, $versions));
@@ -65,7 +65,7 @@ abstract class ServerJarsRepository extends SoftwareRepository
         }
 
         return array_map(
-            fn (array $config) => ConfigurationType::Software->initialize($config),
+            fn (array $config) => BlueprintType::Software->initialize($config),
             $this->fetchConfigurations(),
         );
     }

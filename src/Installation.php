@@ -2,7 +2,7 @@
 
 namespace Recoded\Craftian;
 
-use Recoded\Craftian\Configuration\Configuration;
+use Recoded\Craftian\Configuration\Blueprint;
 use Recoded\Craftian\Contracts\Installable;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -13,7 +13,7 @@ class Installation
     public OutputInterface $output;
 
     public function __construct(
-        public readonly Configuration&Installable $installable,
+        public readonly Blueprint&Installable $installable,
     ) {
     }
 }

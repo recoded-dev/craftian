@@ -2,7 +2,7 @@
 
 namespace Recoded\Craftian\Repositories;
 
-use Recoded\Craftian\Configuration\ServerConfiguration;
+use Recoded\Craftian\Configuration\ServerBlueprint;
 use Recoded\Craftian\Contracts\Repository;
 use Recoded\Craftian\Craftian;
 
@@ -37,15 +37,15 @@ class RepositoryManager
         return $manager;
     }
 
-    public static function fromServer(ServerConfiguration $configuration): static
+    public static function fromServer(ServerBlueprint $server): static
     {
         $manager = new static();
 
-        if ($configuration->hasDefaultRepositories()) {
+        if ($server->hasDefaultRepositories()) {
             $manager->repositories = Craftian::defaultRepositories();
         }
 
-        foreach ($configuration->repositories() as $repository) {
+        foreach ($server->repositories() as $repository) {
             if (!is_array($repository)) {
                 throw new \InvalidArgumentException('Repositories should be expressed in array-form');
             }
@@ -65,7 +65,7 @@ class RepositoryManager
     }
 
     /**
-     * @return array<\Recoded\Craftian\Configuration\Configuration>
+     * @return array<\Recoded\Craftian\Configuration\Blueprint>
      */
     public function get(string $name): array
     {

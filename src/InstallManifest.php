@@ -21,8 +21,8 @@ class InstallManifest implements \IteratorAggregate
     {
         $manifest = new static($installer);
 
-        foreach ($installer->serverConfiguration->lock() as $configuration) {
-            $manifest->toInstall[] = new Installation($configuration);
+        foreach ($installer->server->lock() as $blueprint) {
+            $manifest->toInstall[] = new Installation($blueprint);
         }
 
         return $manifest;

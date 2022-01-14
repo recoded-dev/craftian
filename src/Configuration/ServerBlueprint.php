@@ -2,10 +2,11 @@
 
 namespace Recoded\Craftian\Configuration;
 
+use Recoded\Craftian\Configuration\Locking\Lock;
 use Recoded\Craftian\Configuration\Locking\Locker;
 use Recoded\Craftian\Contracts\Requirements;
 
-class ServerConfiguration extends Configuration implements Requirements
+class ServerBlueprint extends Blueprint implements Requirements
 {
     protected bool $defaultRepositories = true;
 
@@ -19,7 +20,7 @@ class ServerConfiguration extends Configuration implements Requirements
      */
     protected array $requirements = [];
 
-    protected function createLock(): LockedConfiguration
+    protected function createLock(): Lock
     {
         return (new Locker($this))->lock();
     }
@@ -51,7 +52,7 @@ class ServerConfiguration extends Configuration implements Requirements
         }
     }
 
-    public function lock(): LockedConfiguration
+    public function lock(): Lock
     {
         return $this->lock ??= $this->createLock();
     }

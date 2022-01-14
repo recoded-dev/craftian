@@ -2,9 +2,7 @@
 
 namespace Recoded\Craftian\Configuration;
 
-// TODO come up with better umbrella name for server, software and plugin (and potentially more in the future)
-// Maybe: Blueprint, Composition, Project
-abstract class Configuration implements \JsonSerializable
+abstract class Blueprint implements \JsonSerializable
 {
     /**
      * @var array<string, mixed>
@@ -30,25 +28,25 @@ abstract class Configuration implements \JsonSerializable
     }
 
     /**
-     * @param array<string, mixed> $configuration
+     * @param array<string, mixed> $blueprint
      * @return self
      */
-    public static function fromArray(array $configuration): self
+    public static function fromArray(array $blueprint): self
     {
         if (
-            !isset($configuration['type'])
-            || !is_string($configuration['type'])
-            || ConfigurationType::tryFrom($configuration['type']) === null
+            !isset($blueprint['type'])
+            || !is_string($blueprint['type'])
+            || BlueprintType::tryFrom($blueprint['type']) === null
         ) {
-            throw new \InvalidArgumentException('Unknown configuration type');
+            throw new \InvalidArgumentException('Unknown blueprint type');
         }
 
-        return ConfigurationType::from($configuration['type'])->initialize($configuration);
+        return BlueprintType::from($blueprint['type'])->initialize($blueprint);
     }
 
-    public function getType(): ConfigurationType
+    public function getType(): BlueprintType
     {
-        return ConfigurationType::fromConfiguration($this);
+        return BlueprintType::fromBlueprint($this);
     }
 
     /**

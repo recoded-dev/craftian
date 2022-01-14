@@ -5,8 +5,8 @@ namespace Recoded\Craftian;
 use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
-use Recoded\Craftian\Configuration\Configuration;
-use Recoded\Craftian\Configuration\ServerConfiguration;
+use Recoded\Craftian\Configuration\Blueprint;
+use Recoded\Craftian\Configuration\ServerBlueprint;
 use Recoded\Craftian\Contracts\Installable;
 use Recoded\Craftian\Http\Client;
 
@@ -16,7 +16,7 @@ class Installer
     public readonly InstallManifest $manifest;
 
     public function __construct(
-        public readonly ServerConfiguration $serverConfiguration,
+        public readonly ServerBlueprint $server,
         ?Client $client = null,
     ) {
         $this->client = $client ?? new Client();
@@ -24,7 +24,7 @@ class Installer
     }
 
     public function install(
-        Configuration&Installable $installable,
+        Blueprint&Installable $installable,
         ?callable $progress = null,
     ): PromiseInterface {
         $directory = rtrim(Craftian::getCwd() . $installable->installationLocation(), DIRECTORY_SEPARATOR);

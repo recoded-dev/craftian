@@ -16,7 +16,7 @@ interface Repository
      * Get all versions of ...
      *
      * @param string $name
-     * @return array<\Recoded\Craftian\Configuration\Configuration>
+     * @return array<\Recoded\Craftian\Configuration\Blueprint>
      */
     public function get(string $name): array;
 

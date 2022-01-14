@@ -2,8 +2,8 @@
 
 namespace Recoded\Craftian\Repositories;
 
+use Recoded\Craftian\Configuration\BlueprintType;
 use Recoded\Craftian\Configuration\ChecksumType;
-use Recoded\Craftian\Configuration\ConfigurationType;
 use Recoded\Craftian\Contracts\Repository;
 use Recoded\Craftian\Http\Client;
 
@@ -26,7 +26,7 @@ class SpigetRepository implements Repository
         }
 
         return array_filter(
-            $this->provides()[ConfigurationType::Plugin->value],
+            $this->provides()[BlueprintType::Plugin->value],
             fn (string $name) => str_starts_with($name, $query),
         );
     }
@@ -94,7 +94,7 @@ class SpigetRepository implements Repository
             $lastResultCount = count($data);
         } while ($lastResultCount === static::PAGE_SIZE);
 
-        return array_map([ConfigurationType::Plugin, 'initialize'], array_filter(
+        return array_map([BlueprintType::Plugin, 'initialize'], array_filter(
             array_map(function (object $version) use ($id) {
                 if (!isset($version->id, $version->name)) {
                     return null;
@@ -110,7 +110,7 @@ class SpigetRepository implements Repository
                         'checksum-type' => ChecksumType::None->value,
                     ],
                     'name' => 'spiget/' . $id,
-                    'type' => ConfigurationType::Plugin->value,
+                    'type' => BlueprintType::Plugin->value,
                     'version' => $version->name,
                 ];
             }, $versions),
@@ -126,7 +126,7 @@ class SpigetRepository implements Repository
 //        $ids = $this->fetchIds();
 //
 //        return [
-//            ConfigurationType::Plugin->value => array_map(fn (int $id) => "spiget/{$id}", $ids),
+//            BlueprintType::Plugin->value => array_map(fn (int $id) => "spiget/{$id}", $ids),
 //        ];
     }
 }

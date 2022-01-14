@@ -2,7 +2,7 @@
 
 namespace Recoded\Craftian\Repositories;
 
-use Recoded\Craftian\Configuration\ConfigurationType;
+use Recoded\Craftian\Configuration\BlueprintType;
 use Recoded\Craftian\Contracts\Repository;
 
 abstract class SoftwareRepository implements Repository
@@ -23,7 +23,7 @@ abstract class SoftwareRepository implements Repository
     public function provides(): array
     {
         return [
-            ConfigurationType::Software->value => [static::getName()],
+            BlueprintType::Software->value => [static::getName()],
         ];
     }
 

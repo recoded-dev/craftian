@@ -2,8 +2,8 @@
 
 namespace Recoded\Craftian\Contracts;
 
+use Recoded\Craftian\Configuration\BlueprintType;
 use Recoded\Craftian\Configuration\ChecksumType;
-use Recoded\Craftian\Configuration\ConfigurationType;
 
 interface Installable extends Downloadable, Version
 {
@@ -31,9 +31,9 @@ interface Installable extends Downloadable, Version
     /**
      * Type of the installable.
      *
-     * @return \Recoded\Craftian\Configuration\ConfigurationType
+     * @return \Recoded\Craftian\Configuration\BlueprintType
      */
-    public function getType(): ConfigurationType;
+    public function getType(): BlueprintType;
 
     /**
      * Name to install the artifact as in the installation location.

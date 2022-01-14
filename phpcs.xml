@@ -8,7 +8,7 @@
 
     <!-- Ignore enums for now, support isn't great -->
     <exclude-pattern>/src/Configuration/ChecksumType.php</exclude-pattern>
-    <exclude-pattern>/src/Configuration/ConfigurationType.php</exclude-pattern>
+    <exclude-pattern>/src/Configuration/BlueprintType.php</exclude-pattern>
     <exclude-pattern>/src/Console/ProgressBarFormat.php</exclude-pattern>
     <exclude-pattern>/src/Repositories/CustomRepositoryType.php</exclude-pattern>
 
