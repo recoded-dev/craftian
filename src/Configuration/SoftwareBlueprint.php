@@ -123,6 +123,7 @@ class SoftwareBlueprint extends Blueprint implements Replacable
             ],
             'name' => $this->name,
             'replaces' => $this->replacements,
+            'type' => $this->getType()->value,
             'version' => $this->version,
         ];
     }

@@ -5,6 +5,7 @@ namespace Recoded\Craftian\Console\Commands;
 use GuzzleHttp\Promise\EachPromise;
 use Recoded\Craftian\Configuration\ServerLoader;
 use Recoded\Craftian\Console\ProgressBarFormat;
+use Recoded\Craftian\Craftian;
 use Recoded\Craftian\Installation\InstallableProgressBarUpdater;
 use Recoded\Craftian\Installation\Installation;
 use Recoded\Craftian\Installation\Installer;
@@ -23,7 +24,7 @@ class InstallCommand extends Command
         /** @var \Symfony\Component\Console\Output\ConsoleOutput $output */
 
         $installer = new Installer(
-            (new ServerLoader())->load(),
+            $server = (new ServerLoader())->load(),
         );
 
         /** @var \Recoded\Craftian\Installation\Installation $installation */
@@ -44,7 +45,28 @@ class InstallCommand extends Command
             'rejected' => function (\Throwable $throwable) {
                 throw $throwable;
             },
-        ]))->promise()->wait();
+        ]))->promise()->then(function () use ($server) {
+            $lockPath = Craftian::getCwd() . '/craftian.lock';
+
+            if (file_exists($lockPath)) {
+                return;
+            }
+
+            $resource = fopen($lockPath, 'a');
+
+            if ($resource === false) {
+                throw new \Exception('Cannot read/write "craftian.lock" file');
+            }
+
+            $lockJson = json_encode($server->lock(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+            if ($lockJson === false) {
+                throw new \Exception('Cannot JSON encode lock file');
+            }
+
+            fwrite($resource, $lockJson);
+            fclose($resource);
+        })->wait();
 
         return static::SUCCESS;
     }

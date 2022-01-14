@@ -33,7 +33,7 @@ class Craftian extends Application
         $this->add(new InstallCommand());
     }
 
-    public static function bootCwd(): void
+    protected static function bootCwd(): void
     {
         $cwd = getcwd();
 

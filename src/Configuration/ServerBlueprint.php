@@ -4,11 +4,13 @@ namespace Recoded\Craftian\Configuration;
 
 use Recoded\Craftian\Configuration\Locking\Lock;
 use Recoded\Craftian\Configuration\Locking\Locker;
+use Recoded\Craftian\Contracts\Locking;
 use Recoded\Craftian\Contracts\Requirements;
 
-class ServerBlueprint extends Blueprint implements Requirements
+class ServerBlueprint extends Blueprint implements Locking, Requirements
 {
     protected bool $defaultRepositories = true;
+    protected Lock $lock;
 
     /**
      * @var array<array-key, array<string, mixed>>
@@ -52,6 +54,9 @@ class ServerBlueprint extends Blueprint implements Requirements
         }
     }
 
+    /**
+     * @inheritDoc
+     */
     public function lock(): Lock
     {
         return $this->lock ??= $this->createLock();
@@ -65,14 +70,26 @@ class ServerBlueprint extends Blueprint implements Requirements
         return $this->repositories;
     }
 
+    /**
+     * @inheritDoc
+     */
     public function requirements(): array
     {
         return $this->requirements;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function setLock(Lock $lock): void
+    {
+        $this->lock = $lock;
+    }
+
     public function toArray(): array
     {
         return [
+            'type' => $this->getType()->value,
             'require' => $this->requirements,
             'enable-default-repositories' => $this->defaultRepositories,
         ];

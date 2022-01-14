@@ -169,6 +169,7 @@ class PluginBlueprint extends Blueprint implements Replacable, Requirements, Sof
             'name' => $this->name,
             'replaces' => $this->replacements,
             'requirements' => $this->requirements,
+            'type' => $this->getType()->value,
             'version' => $this->version,
         ];
     }

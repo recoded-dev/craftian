@@ -5,6 +5,7 @@ namespace Recoded\Craftian\Configuration\Locking;
 use Composer\Semver\Semver;
 use Composer\Semver\VersionParser;
 use Recoded\Craftian\Configuration\Blueprint;
+use Recoded\Craftian\Configuration\ChecksumType;
 use Recoded\Craftian\Configuration\ServerBlueprint;
 use Recoded\Craftian\Contracts\Installable;
 use Recoded\Craftian\Contracts\Replacable;
@@ -162,7 +163,24 @@ class Locker
             }
         } while (!empty($toLock));
 
-        return new Lock(array_values($lock));
+        $summary = [];
+
+        /** @var \Recoded\Craftian\Configuration\Blueprint&\Recoded\Craftian\Contracts\Installable $blueprint */
+        foreach ($lock as $requirement => $blueprint) {
+            $summary[$requirement] = $blueprint->getChecksum();
+        }
+
+        $jsonSummary = json_encode($summary);
+
+        if ($jsonSummary === false) {
+            throw new \JsonException('Cannot summarize lock file');
+        }
+
+        return new Lock(
+            array_values($lock),
+            time(),
+            hash(ChecksumType::Sha256->value, $jsonSummary),
+        );
     }
 
     /**
