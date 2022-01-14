@@ -2,7 +2,10 @@
 
 namespace Recoded\Craftian\Http;
 
+use GuzzleHttp\HandlerStack;
 use Psr\Http\Message\UriInterface;
+use Recoded\Craftian\Craftian;
+use Recoded\Craftian\Http\Middleware\Authenticate;
 
 class Client extends \GuzzleHttp\Client
 {
@@ -12,10 +15,21 @@ class Client extends \GuzzleHttp\Client
     public function __construct(array $config = [])
     {
         parent::__construct([
+            'handler' => $this->handler(),
             'headers' => [
                 'User-Agent' => 'Craftian', // TODO add version
             ],
+            'craftian' => Craftian::httpConfig(),
         ] + $config);
+    }
+
+    protected function handler(): callable
+    {
+        $handler = HandlerStack::create();
+
+        $handler->push(new Authenticate(), 'authenticate');
+
+        return $handler;
     }
 
     /**

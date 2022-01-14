@@ -18,11 +18,31 @@ use Symfony\Component\Console\Helper\ProgressBar;
 
 class Craftian extends Application
 {
+    protected static string $configPath;
     protected static string $cwd;
+    /**
+     * @var array<string, string>
+     */
+    protected static array $authenticationConfig;
 
     public function boot(): void
     {
+        $userId = fileowner(__FILE__);
+
+        if ($userId === false) {
+            throw new \Exception('Cannot locate global config for Craftian');
+        }
+
+        $userData = posix_getpwuid($userId);
+
+        if ($userData === false) {
+            throw new \Exception('Cannot locate global config for Craftian');
+        }
+
+        static::$configPath = $userData['dir'] . '/.config/craftian';
+
         static::bootCwd();
+        static::bootHttpConfig();
 
         ProgressBar::setFormatDefinition(
             ProgressBarFormat::DOWNLOADING->value,
@@ -42,6 +62,32 @@ class Craftian extends Application
         }
 
         static::$cwd = $cwd;
+    }
+
+    protected static function bootHttpConfig(): void
+    {
+        $resource = @fopen(static::$configPath . '/auth.json', 'r');
+
+        if ($resource === false) {
+            static::$authenticationConfig = [];
+            return;
+        }
+
+        $contents = stream_get_contents($resource);
+
+        if ($contents === false) {
+            static::$authenticationConfig = [];
+            return;
+        }
+
+        $data = json_decode($contents, true, flags: JSON_THROW_ON_ERROR);
+
+        if ($data === false || !is_array($data)) {
+            static::$authenticationConfig = [];
+            return;
+        }
+
+        static::$authenticationConfig = $data;
     }
 
     /**
@@ -65,5 +111,15 @@ class Craftian extends Application
     public static function getCwd(): string
     {
         return static::$cwd;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public static function httpConfig(): array
+    {
+        return [
+            'authentication' => static::$authenticationConfig,
+        ];
     }
 }
