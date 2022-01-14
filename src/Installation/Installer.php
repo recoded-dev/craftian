@@ -1,6 +1,6 @@
 <?php
 
-namespace Recoded\Craftian;
+namespace Recoded\Craftian\Installation;
 
 use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -8,6 +8,7 @@ use GuzzleHttp\RequestOptions;
 use Recoded\Craftian\Configuration\Blueprint;
 use Recoded\Craftian\Configuration\ServerBlueprint;
 use Recoded\Craftian\Contracts\Installable;
+use Recoded\Craftian\Craftian;
 use Recoded\Craftian\Http\Client;
 
 class Installer
@@ -23,24 +24,40 @@ class Installer
         $this->manifest = InstallManifest::fromLock($this);
     }
 
+    public function getInstallPath(Blueprint&Installable $blueprint): string
+    {
+        return sprintf(
+            '%s%s%s%s',
+            Craftian::getCwd(),
+            rtrim($blueprint->installationLocation(), DIRECTORY_SEPARATOR),
+            DIRECTORY_SEPARATOR,
+            $blueprint->installationFilename(),
+        );
+    }
+
     public function install(
-        Blueprint&Installable $installable,
+        Blueprint&Installable $blueprint,
         ?callable $progress = null,
     ): PromiseInterface {
-        $directory = rtrim(Craftian::getCwd() . $installable->installationLocation(), DIRECTORY_SEPARATOR);
-        $path = $directory . DIRECTORY_SEPARATOR . $installable->installationFilename();
+        $directory = dirname(
+            $path = $this->getInstallPath($blueprint),
+        );
 
         if (!is_dir($directory)) {
             mkdir($directory, recursive: true);
         }
 
-        $url = $installable->getURL();
+        $url = $blueprint->getURL();
 
-        if (str_starts_with($url, 'http')) {
-            return $this->promiseDownload($url, $path, $progress);
-        } else {
-            return $this->promiseSymlink($url, $path, $progress);
-        }
+        $promise = str_starts_with($url, 'http')
+            ? $this->promiseDownload($url, $path, $progress)
+            : $this->promiseSymlink($url, $path, $progress);
+
+        return $promise->then(function () use ($blueprint, $path) {
+            if (!$blueprint->checksumType()->verifyFile($path, $blueprint->getChecksum())) {
+                throw new \Exception('Hash verification failed for requirement ' . $blueprint->getName());
+            }
+        });
     }
 
     protected function promiseDownload(string $url, string $path, ?callable $progress): PromiseInterface

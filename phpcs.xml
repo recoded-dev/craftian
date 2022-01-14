@@ -36,8 +36,9 @@
 
     <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
         <!-- Ignore files with intersection types, support isn't great -->
-        <exclude-pattern>/src/Installation.php</exclude-pattern>
-        <exclude-pattern>/src/Installer.php</exclude-pattern>
+        <exclude-pattern>/src/Installation/Installation.php</exclude-pattern>
+        <exclude-pattern>/src/Installation/Installer.php</exclude-pattern>
+        <exclude-pattern>/src/Installation/InstallManifest.php</exclude-pattern>
     </rule>
 
     <rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>

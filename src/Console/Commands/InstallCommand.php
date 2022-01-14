@@ -5,9 +5,9 @@ namespace Recoded\Craftian\Console\Commands;
 use GuzzleHttp\Promise\EachPromise;
 use Recoded\Craftian\Configuration\ServerLoader;
 use Recoded\Craftian\Console\ProgressBarFormat;
-use Recoded\Craftian\InstallableProgressBarUpdater;
-use Recoded\Craftian\Installation;
-use Recoded\Craftian\Installer;
+use Recoded\Craftian\Installation\InstallableProgressBarUpdater;
+use Recoded\Craftian\Installation\Installation;
+use Recoded\Craftian\Installation\Installer;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -26,7 +26,7 @@ class InstallCommand extends Command
             (new ServerLoader())->load(),
         );
 
-        /** @var \Recoded\Craftian\Installation $installation */
+        /** @var \Recoded\Craftian\Installation\Installation $installation */
         foreach ($installer->manifest as $installation) {
             $section = $output->section();
             $installation->progressBar = new ProgressBar($section);
@@ -40,7 +40,10 @@ class InstallCommand extends Command
         ));
 
         (new EachPromise($promises, [
-            'concurrency' => 4,
+            'concurrency' => 10,
+            'rejected' => function (\Throwable $throwable) {
+                throw $throwable;
+            },
         ]))->promise()->wait();
 
         return static::SUCCESS;

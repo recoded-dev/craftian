@@ -1,6 +1,6 @@
 <?php
 
-namespace Recoded\Craftian;
+namespace Recoded\Craftian\Installation;
 
 use Recoded\Craftian\Configuration\Blueprint;
 use Recoded\Craftian\Contracts\Installable;

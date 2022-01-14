@@ -1,6 +1,6 @@
 <?php
 
-namespace Recoded\Craftian;
+namespace Recoded\Craftian\Installation;
 
 use Recoded\Craftian\Contracts\Installable;
 use Symfony\Component\Console\Helper\ProgressBar;
