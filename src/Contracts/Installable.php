@@ -34,4 +34,18 @@ interface Installable extends Downloadable, Version
      * @return \Recoded\Craftian\Configuration\ConfigurationType
      */
     public function getType(): ConfigurationType;
+
+    /**
+     * Name to install the artifact as in the installation location.
+     *
+     * @return string
+     */
+    public function installationFilename(): string;
+
+    /**
+     * Directory to install the artifact to.
+     *
+     * @return string
+     */
+    public function installationLocation(): string;
 }

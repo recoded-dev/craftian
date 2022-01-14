@@ -52,11 +52,6 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
         return '*'; // TODO refactor
     }
 
-    public function getType(): ConfigurationType
-    {
-        return ConfigurationType::Plugin;
-    }
-
     public function getURL(): string
     {
         return $this->url;
@@ -126,6 +121,28 @@ class PluginConfiguration extends Configuration implements Replacable, Requireme
         if (isset($config['replaces']) && is_array($config['replaces'])) {
             $this->replacements = $config['replaces'];
         }
+    }
+
+    public function installationFilename(): string
+    {
+        $safeName = preg_replace([
+            '/[\/\\\\]+/',
+            '/[^A-Za-z0-9]+/',
+        ], [
+            '-',
+            '',
+        ], $this->getName());
+
+        return sprintf(
+            '%s-%s.jar',
+            $safeName,
+            str_replace('.', '_', $this->getVersion()),
+        );
+    }
+
+    public function installationLocation(): string
+    {
+        return '/plugins';
     }
 
     public function replaces(): array

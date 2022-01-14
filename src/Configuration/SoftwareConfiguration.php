@@ -31,11 +31,6 @@ class SoftwareConfiguration extends Configuration implements Replacable
         return $this->name;
     }
 
-    public function getType(): ConfigurationType
-    {
-        return ConfigurationType::Software;
-    }
-
     public function getURL(): string
     {
         return $this->url;
@@ -98,6 +93,16 @@ class SoftwareConfiguration extends Configuration implements Replacable
         if (isset($config['replaces']) && is_array($config['replaces'])) {
             $this->replacements = $config['replaces'];
         }
+    }
+
+    public function installationFilename(): string
+    {
+        return 'server.jar';
+    }
+
+    public function installationLocation(): string
+    {
+        return '/';
     }
 
     public function replaces(): array

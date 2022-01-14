@@ -46,6 +46,11 @@ abstract class Configuration implements \JsonSerializable
         return ConfigurationType::from($configuration['type'])->initialize($configuration);
     }
 
+    public function getType(): ConfigurationType
+    {
+        return ConfigurationType::fromConfiguration($this);
+    }
+
     /**
      * @return array<string, mixed>
      */

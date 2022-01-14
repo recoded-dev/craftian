@@ -2,7 +2,7 @@
 
 namespace Recoded\Craftian\Console\Commands;
 
-use GuzzleHttp\Promise\Utils;
+use GuzzleHttp\Promise\EachPromise;
 use Recoded\Craftian\Configuration\ServerLoader;
 use Recoded\Craftian\Console\ProgressBarFormat;
 use Recoded\Craftian\InstallableProgressBarUpdater;
@@ -39,7 +39,9 @@ class InstallCommand extends Command
             $installation->progressBar,
         ));
 
-        Utils::settle($promises)->wait();
+        (new EachPromise($promises, [
+            'concurrency' => 4,
+        ]))->promise()->wait();
 
         return static::SUCCESS;
     }

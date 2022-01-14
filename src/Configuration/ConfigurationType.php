@@ -20,4 +20,14 @@ enum ConfigurationType: string
             self::Software => SoftwareConfiguration::class,
         })($config);
     }
+
+    public static function fromConfiguration(Configuration $configuration): self
+    {
+        return match (get_class($configuration)) {
+            PluginConfiguration::class => self::Plugin,
+            ServerConfiguration::class => self::Server,
+            SoftwareConfiguration::class => self::Software,
+            default => throw new \Exception('Unknown configuration class'),
+        };
+    }
 }

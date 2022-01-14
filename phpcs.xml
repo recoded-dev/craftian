@@ -6,6 +6,12 @@
     <file>src/</file>
     <file>application.php</file>
 
+    <!-- Ignore enums for now, support isn't great -->
+    <exclude-pattern>/src/Configuration/ChecksumType.php</exclude-pattern>
+    <exclude-pattern>/src/Configuration/ConfigurationType.php</exclude-pattern>
+    <exclude-pattern>/src/Console/ProgressBarFormat.php</exclude-pattern>
+    <exclude-pattern>/src/Repositories/CustomRepositoryType.php</exclude-pattern>
+
     <config name="tab_width" value="4"/>
     <config name="ignore_warnings_on_exit" value="1"/>
 
@@ -28,7 +34,11 @@
 
     <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses"/>
 
-    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses"/>
+    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
+        <!-- Ignore files with intersection types, support isn't great -->
+        <exclude-pattern>/src/Installation.php</exclude-pattern>
+        <exclude-pattern>/src/Installer.php</exclude-pattern>
+    </rule>
 
     <rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation"/>
 

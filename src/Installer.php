@@ -2,6 +2,7 @@
 
 namespace Recoded\Craftian;
 
+use GuzzleHttp\Promise\Promise;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
 use Recoded\Craftian\Configuration\Configuration;
@@ -26,18 +27,49 @@ class Installer
         Configuration&Installable $installable,
         ?callable $progress = null,
     ): PromiseInterface {
-        // TODO
-//        $directory = Craftian::getCwd() . '/plugins';
-        $directory = Craftian::getCwd();
-        !file_exists($directory) && mkdir($directory, recursive: true);
+        $directory = rtrim(Craftian::getCwd() . $installable->installationLocation(), DIRECTORY_SEPARATOR);
+        $path = $directory . DIRECTORY_SEPARATOR . $installable->installationFilename();
 
-        return $this->client->getAsync($installable->getURL(), [
-            RequestOptions::SINK => sprintf(
-                '%s/%s.jar',
-                $directory,
-                str_replace(['/', '\\'], '-', $installable->getName()),
-            ),
+        if (!is_dir($directory)) {
+            mkdir($directory, recursive: true);
+        }
+
+        $url = $installable->getURL();
+
+        if (str_starts_with($url, 'http')) {
+            return $this->promiseDownload($url, $path, $progress);
+        } else {
+            return $this->promiseSymlink($url, $path, $progress);
+        }
+    }
+
+    protected function promiseDownload(string $url, string $path, ?callable $progress): PromiseInterface
+    {
+        return $this->client->requestAsync('GET', $url, [
+            RequestOptions::SINK => $path,
             RequestOptions::PROGRESS => $progress,
         ]);
+    }
+
+    protected function promiseSymlink(string $url, string $path, ?callable $progress): PromiseInterface
+    {
+        $promise = new Promise(function () use ($path, &$promise, $url) {
+            /** @var \GuzzleHttp\Promise\PromiseInterface $promise */
+            symlink($url, $path)
+                ? $promise->resolve(null)
+                : $promise->reject(null);
+        });
+
+        $promise->then(function () use ($progress) {
+            if ($progress !== null) {
+                $progress(1.0 * 1024 * 1024, 1.0 * 1024 * 1024, .0, .0);
+            }
+        }, function () use ($progress) {
+            if ($progress !== null) {
+                $progress(1.0 * 1024 * 1024, .0, .0, .0);
+            }
+        });
+
+        return $promise;
     }
 }

@@ -53,7 +53,13 @@ class InitCommand extends Command
         $path = Craftian::getCwd() . '/.gitignore';
 
         if (file_exists($path)) {
-            if (str_contains(file_get_contents($path), 'server.jar')) {
+            $contents = file_get_contents($path);
+
+            if ($contents === false) {
+                throw new \Exception('Cannot update .gitignore file');
+            }
+
+            if (str_contains($contents, 'server.jar')) {
                 return;
             }
 
