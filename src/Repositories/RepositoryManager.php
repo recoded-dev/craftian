@@ -50,7 +50,11 @@ class RepositoryManager
                 throw new \InvalidArgumentException('Repositories should be expressed in array-form');
             }
 
-            if (!isset($repository['type']) || !is_string($repository['type']) || CustomRepositoryType::tryFrom($repository['type']) === null) {
+            if (
+                !isset($repository['type'])
+                || !is_string($repository['type'])
+                || CustomRepositoryType::tryFrom($repository['type']) === null
+            ) {
                 throw new \InvalidArgumentException('Unknown repository type');
             }
 

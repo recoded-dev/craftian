@@ -102,7 +102,11 @@ class SpigetRepository implements Repository
 
                 return [
                     'distribution' => [
-                        'url' => sprintf('https://api.spiget.org/v2/resources/%d/versions/%d/download', $id, $version->id),
+                        'url' => sprintf(
+                            'https://api.spiget.org/v2/resources/%d/versions/%d/download',
+                            $id,
+                            $version->id,
+                        ),
                         'checksum-type' => ChecksumType::None->value,
                     ],
                     'name' => 'spiget/' . $id,

@@ -35,7 +35,10 @@ class Locker
      */
     protected function findConstraintsFor(array $lock, string $requirement): array
     {
-        $requirements = array_filter($lock, fn (Configuration $configuration) => $configuration instanceof Requirements);
+        $requirements = array_filter(
+            $lock,
+            fn (Configuration $configuration) => $configuration instanceof Requirements,
+        );
         $constraints = array_map(function (Requirements $configuration) use ($requirement) {
             return $configuration->requirements()[$requirement] ?? null;
         }, $requirements);
@@ -53,38 +56,41 @@ class Locker
      */
     protected function findLock(string $requirement, array $constraints, array $installed): ?array
     {
-        $possible = array_filter($this->get($requirement), function (Configuration&Installable $configuration) use ($constraints, $installed) {
-            if ($configuration instanceof Requirements) {
-                foreach ($configuration->requirements() as $requirement => $constraint) {
-                    $availableVersions = array_map(
-                        fn (Installable $installable) => $installable->getVersion(),
-                        $this->get($requirement),
-                    );
+        $possible = array_filter(
+            $this->get($requirement),
+            function (Configuration&Installable $configuration) use ($constraints, $installed) {
+                if ($configuration instanceof Requirements) {
+                    foreach ($configuration->requirements() as $requirement => $constraint) {
+                        $availableVersions = array_map(
+                            fn (Installable $installable) => $installable->getVersion(),
+                            $this->get($requirement),
+                        );
 
-                    $satisfiedVersions = Semver::satisfiedBy($availableVersions, $constraint);
+                        $satisfiedVersions = Semver::satisfiedBy($availableVersions, $constraint);
 
-                    if (empty($satisfiedVersions)) {
-                        return false;
+                        if (empty($satisfiedVersions)) {
+                            return false;
+                        }
+
+                        if (!isset($installed[$requirement])) {
+                            continue;
+                        }
+
+                        if (!Semver::satisfies($installed[$requirement], $constraint)) {
+                            return false;
+                        }
                     }
+                }
 
-                    if (!isset($installed[$requirement])) {
-                        continue;
-                    }
-
-                    if (!Semver::satisfies($installed[$requirement], $constraint)) {
+                foreach ($constraints as $constraint) {
+                    if (!Semver::satisfies($configuration->getVersion(), $constraint)) {
                         return false;
                     }
                 }
-            }
 
-            foreach ($constraints as $constraint) {
-                if (!Semver::satisfies($configuration->getVersion(), $constraint)) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
+                return true;
+            },
+        );
 
         if (empty($possible)) {
             return null;

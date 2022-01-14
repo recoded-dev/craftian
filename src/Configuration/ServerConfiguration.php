@@ -2,6 +2,7 @@
 
 namespace Recoded\Craftian\Configuration;
 
+use Recoded\Craftian\Configuration\Locking\Locker;
 use Recoded\Craftian\Contracts\Requirements;
 
 class ServerConfiguration extends Configuration implements Requirements
@@ -20,8 +21,7 @@ class ServerConfiguration extends Configuration implements Requirements
 
     protected function createLock(): LockedConfiguration
     {
-//        return new LockedConfiguration($this->requirements);
-        return new LockedConfiguration([]);
+        return (new Locker($this))->lock();
     }
 
     protected function defaultConfig(): array
@@ -72,7 +72,7 @@ class ServerConfiguration extends Configuration implements Requirements
     public function toArray(): array
     {
         return [
-            'requirements' => $this->requirements,
+            'require' => $this->requirements,
             'enable-default-repositories' => $this->defaultRepositories,
         ];
     }

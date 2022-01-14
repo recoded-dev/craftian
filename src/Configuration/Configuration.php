@@ -35,7 +35,11 @@ abstract class Configuration implements \JsonSerializable
      */
     public static function fromArray(array $configuration): self
     {
-        if (!isset($configuration['type']) || !is_string($configuration['type']) || ConfigurationType::tryFrom($configuration['type']) === null) {
+        if (
+            !isset($configuration['type'])
+            || !is_string($configuration['type'])
+            || ConfigurationType::tryFrom($configuration['type']) === null
+        ) {
             throw new \InvalidArgumentException('Unknown configuration type');
         }
 

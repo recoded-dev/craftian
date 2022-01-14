@@ -50,4 +50,8 @@
 
     <rule ref="SlevomatCodingStandard.PHP.ShortList"/>
 
+    <rule ref="Generic.Files.LineLength.TooLong">
+        <exclude name="Generic.Files.LineLength.TooLong"/>
+    </rule>
+
 </ruleset>

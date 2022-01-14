@@ -2,7 +2,6 @@
 
 namespace Recoded\Craftian;
 
-use Recoded\Craftian\Console\ProgressBarFormat;
 use Recoded\Craftian\Contracts\Installable;
 use Symfony\Component\Console\Helper\ProgressBar;
 
@@ -14,7 +13,6 @@ class InstallableProgressBarUpdater
         protected Installable $installable,
         protected ProgressBar $progressBar,
     ) {
-        $progressBar->setFormat(ProgressBarFormat::DOWNLOADING->value);
         $progressBar->setMessage(
             sprintf('%s (%s)', $this->installable->getName(), $this->installable->getVersion()),
             'downloadable',

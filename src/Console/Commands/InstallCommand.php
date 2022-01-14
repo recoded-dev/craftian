@@ -3,10 +3,11 @@
 namespace Recoded\Craftian\Console\Commands;
 
 use GuzzleHttp\Promise\Utils;
-use Recoded\Craftian\Http\Client;
+use Recoded\Craftian\Configuration\ServerLoader;
+use Recoded\Craftian\Console\ProgressBarFormat;
 use Recoded\Craftian\InstallableProgressBarUpdater;
+use Recoded\Craftian\Installation;
 use Recoded\Craftian\Installer;
-use Recoded\Craftian\Repositories\RepositoryManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\InputInterface;
@@ -21,23 +22,22 @@ class InstallCommand extends Command
     {
         /** @var \Symfony\Component\Console\Output\ConsoleOutput $output */
 
-        $installer = new Installer();
-        $promises = [];
+        $installer = new Installer(
+            (new ServerLoader())->load(),
+        );
 
-        $repositoryManager = RepositoryManager::default();
-        $client = new Client();
-
-        foreach (['minecraft/server', 'spigotmc/bungeecord'] as $installing) {
+        /** @var \Recoded\Craftian\Installation $installation */
+        foreach ($installer->manifest as $installation) {
             $section = $output->section();
-            $bar = new ProgressBar($section);
-
-            /** @var \Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable $installable */
-            $installable = $repositoryManager->get($installing)[0];
-
-            $updater = new InstallableProgressBarUpdater($installable, $bar);
-
-            $promises[] = $installer->install($installable, $client, $updater);
+            $installation->progressBar = new ProgressBar($section);
+            $installation->progressBar->setFormat(ProgressBarFormat::DOWNLOADING->value);
+            $installation->output = $section;
         }
+
+        $promises = $installer->manifest->install(fn (Installation $installation) => new InstallableProgressBarUpdater(
+            $installation->installable,
+            $installation->progressBar,
+        ));
 
         Utils::settle($promises)->wait();
 

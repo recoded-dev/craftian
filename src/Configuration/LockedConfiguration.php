@@ -2,15 +2,25 @@
 
 namespace Recoded\Craftian\Configuration;
 
-class LockedConfiguration implements \JsonSerializable
+/**
+ * @implements \IteratorAggregate<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable>
+ */
+class LockedConfiguration implements \IteratorAggregate, \JsonSerializable
 {
     /**
-     * @param array<\Recoded\Craftian\Configuration\Configuration> $requirements
+     * @param array<\Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable> $requirements
      */
     public function __construct(
-        protected array $requirements = [],
+        public readonly array $requirements = [],
     ) {
-        //
+    }
+
+    /**
+     * @return \ArrayIterator<array-key, \Recoded\Craftian\Configuration\Configuration&\Recoded\Craftian\Contracts\Installable>
+     */
+    public function getIterator(): \ArrayIterator
+    {
+        return new \ArrayIterator($this->requirements);
     }
 
     /**
